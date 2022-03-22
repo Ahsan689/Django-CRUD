@@ -132,7 +132,7 @@ class TodoView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        print(request.user.id)
+        # print(request.user.id)
         data = Todo.objects.filter(user = request.user)
         serializer = TodoSerializer(data, many=True)
         return Response({
@@ -200,6 +200,33 @@ class TodoView(APIView):
                 'message': 'exception error',
             })
        
+
+    def delete(self, request):
+        try:
+            data = request.data
+            todo_data = Todo.objects.get(uid = data.get('uid'))
+            # print(request.user)
+            # print(data)
+            if todo_data:
+                todo_data.delete()
+                return Response({
+                        'status' : True,
+                        'message': 'successfully Deleted',
+                    })
+            # partial=True is helpful when we have to edit a single field.
+            # if dont pass partial=True then you have to pass all fields.
+            return Response({
+                'status' : False,
+                'message': 'Invaid data',
+                'data': todo_data.errors
+            })
+
+        except Exception as e:
+            print(e)
+            return Response({
+                'status' : False,
+                'message': 'exception error',
+            })
 
 class TodoViewSet(viewsets.ModelViewSet):
     queryset = Todo.objects.all()
