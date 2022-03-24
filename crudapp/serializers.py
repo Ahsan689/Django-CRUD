@@ -1,5 +1,6 @@
 # serializers.py
 from dataclasses import field
+from pyexpat import model
 from rest_framework import serializers
 
 from .models import *
@@ -50,4 +51,14 @@ class TimingTodoSerializer(serializers.ModelSerializer):
         # agar hume forign key k sath koi object chayye to hum depth pass krte hian, lekin depth main masla ye hai k ye saari fields ko serialize kr k return krdeta hai. jo hum ne serializer main inlude bh nh kri. 
         
         # depth = 1
-                    
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username','email']
+
+class ItemsListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ItemsList
+        fields = ['item','price','quantity']

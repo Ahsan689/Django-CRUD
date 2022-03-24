@@ -4,3 +4,5 @@ from crudapp.models import *
 
 admin.site.register(Person)
 admin.site.register(Todo)
+admin.site.register(User)
+admin.site.register(ItemsList)

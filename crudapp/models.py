@@ -26,3 +26,18 @@ class Todo(BaseModel):
 class TimingTodo(BaseModel):
     todo = models.ForeignKey(Todo , on_delete=models.CASCADE)
     timing = models.DateField()
+
+
+class User(models.Model):
+    username = models.TextField(max_length=255, default="")
+    email = models.EmailField(max_length=255, default="")
+    password = models.TextField(max_length=55, default="")
+    # newpassword = models.TextField(max_length=55, default="")
+
+    def __str__(self):
+        return self.username
+
+class ItemsList(models.Model):
+    item = models.TextField(max_length=255, default='')
+    price = models.TextField(max_length=255, default='')
+    quantity = models.TextField(max_length=200, default='')

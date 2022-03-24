@@ -17,6 +17,10 @@ urlpatterns = [
     path('get_todo/', views.get_todo, name='get_todo'),
     path('update_todo/', views.update_todo, name='update_todo'),
     path('todoview/', views.TodoView.as_view(), name='update_todo'),
+    path('signup/', views.UserSignup.as_view(), name='signup'),
+    path('login/', views.UserLogin.as_view(), name='login'),
+    path('items/', views.Items.as_view(), name='items'),
+    
 ]
 
 urlpatterns += router.urls

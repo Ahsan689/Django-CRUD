@@ -1,3 +1,4 @@
+import email
 from functools import partial
 from logging import exception
 from urllib import request
@@ -19,11 +20,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.core.paginator import Paginator
+import datetime 
+import jwt
+
 
 from .serializers import *
 
 # Create your views here.
-
+tokenkey = "userkey"
 
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all().order_by('id')
@@ -133,6 +137,7 @@ class TodoView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         # print(request.user.id)
+        print(request.user)
         data = Todo.objects.filter(user = request.user)
         serializer = TodoSerializer(data, many=True)
         return Response({
@@ -229,6 +234,7 @@ class TodoView(APIView):
             })
 
 class TodoViewSet(viewsets.ModelViewSet):
+
     queryset = Todo.objects.all()
     serializer_class = TodoSerializer
 
@@ -268,3 +274,139 @@ class TodoViewSet(viewsets.ModelViewSet):
                 'status' : False,
                 'message': 'exception error',
             })
+
+class UserSignup(APIView):
+
+    def post(self, request):
+        try:
+            data = request.data
+            print(data)
+            serializer = UserSerializer(data = data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    'status' : True,
+                    'message': 'successfully created',
+                    # 'data': serializer.data
+                })
+            return Response({
+                'status' : False,
+                'message': 'Invaid data',
+                'data': serializer.errors
+            })
+
+        except Exception as e:
+            print(e)
+            return Response({
+                'status' : False,
+                'message': 'exception error',
+            })
+
+    def get(self, request):
+        # print(request.user.id)
+        print(request.user)
+        data = User.objects.all()
+        serializer = UserSerializer(data, many=True)
+        return Response({
+            'status' : True,
+            'message':'fetched',
+            'data': serializer.data
+        })
+
+
+class UserLogin(APIView):
+
+    def post(self, request):
+        try:
+            currdata = request.data
+            # print(request.data['email'])
+            # print(currdata)
+            verifyemail = User.objects.get(email = currdata.get('email'))
+            # print("hhh ---",verifyemail.email)
+            if verifyemail.email:
+                serializer = UserSerializer(data = currdata)
+                if serializer.is_valid():
+                    access_token_payload = {
+                        'data': serializer.data,
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+                        'iat': datetime.datetime.utcnow(),
+
+                        }
+                    
+                    access_token = jwt.encode(access_token_payload, tokenkey, algorithm='HS256')
+                    # print(jwt.decode(access_token, tokenkey, algorithms="HS256"))
+                    return Response({
+                        'status':True,
+                        'token':access_token,
+                        'message':'Login Succesfully'
+                    })
+                
+        except Exception as e:
+            print(e)
+            return Response({
+                'status' : False,
+                'message': 'exception error',
+                'error': str(e)
+            })
+
+class Items(APIView):
+
+
+    def get(self, request):
+        # token = request.META['HTTP_AUTHORIZATION'][7::]
+        # # try:
+        # load = jwt.decode(token, key, algorithms="HS256")
+        # # print('load---------------',load)
+        # id=load['access']['id']
+        # print('Id load---------',id)
+        # data = TrainerMember.objects.filter(id=id).first()
+
+        print(request.data)
+        data = ItemsList.objects.all()
+        serializer = ItemsListSerializer(data=data , many=True)
+        if serializer.is_valid():
+            return Response({
+                'status' : True,
+                'message':'fetched',
+                'data': serializer.data
+            })
+        return Response({
+                'status' : False,
+                'message':'something wrong',
+            })
+
+    # def post(self, request):
+    #     try:
+    #         currdata = request.data
+    #         # print(request.data['email'])
+    #         print(currdata)
+    #         # verifyemail = User.objects.get(email = currdata.get('email'))
+    #         # print("hhh ---",verifyemail.email)
+    #         if verifyemail.email:
+    #             serializer = UserSerializer(data = currdata)
+    #             if serializer.is_valid():
+    #                 access_token_payload = {
+    #                     'data': serializer.data,
+    #                     'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+    #                     'iat': datetime.datetime.utcnow(),
+
+    #                     }
+                    
+    #                 access_token = jwt.encode(access_token_payload, tokenkey, algorithm='HS256')
+    #                 print(jwt.decode(access_token, tokenkey, algorithms="HS256"))
+    #                 return Response({
+    #                     'status':True,
+    #                     'token':access_token,
+    #                     'message':'Login Succesfully'
+    #                 })
+                
+    #     except Exception as e:
+    #         print(e)
+    #         return Response({
+    #             'status' : False,
+    #             'message': 'exception error',
+    #             'error': str(e)
+    #         })
+
+    
+        
